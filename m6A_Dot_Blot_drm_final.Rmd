@@ -1,0 +1,608 @@
+---
+title: "m6A Dot-Blot Quantification"
+author: "Ben Mallory"
+date: "9-16-2022"
+output: html_document
+---
+
+```{r}
+# Load libraries
+
+library(tidyverse)
+library(reshape2)
+library(drc)
+```
+
+```{r}
+# Read in csv files containing normalized m6A dot-blot data
+
+setwd("~/Lab data/Dot-Blot Quant")
+
+figure_1b = read.csv('Figure_1b_normalized.csv')
+colnames(figure_1b) = c('sample', 'dna', '0U', '20U')
+figure_1d = read.csv('Figure_1d_normalized.csv')
+colnames(figure_1d) = c('sample', 'dna', '20U', '0.6U', '0.075U', '0U')
+figure_2b = read.csv('Figure_2b_normalized.csv')
+colnames(figure_2b) = c('sample', 'dna', 'intensity')
+figure_s2a = read.csv('Figure_S2_A_normalized.csv')
+colnames(figure_s2a) = c('sample', 'dna', 'intensity')
+figure_s2b = read.csv('Figure_S2_B_normalized.csv')
+colnames(figure_s2b) = c('sample', 'dna', 'intensity')
+figure_s2b_new = read.csv('normalized_m6A_dotblot_quant.csv')
+colnames(figure_s2b_new) = c('sample', 'dna', '0U', 'treated_1', 'treated_2', 'treated_3')
+```
+
+```{r}
+# Organize data for figure 1b
+
+keep_vars = c('sample', 'dna')
+figure_1b_MP1 = melt(figure_1b[1:7,], id.vars = keep_vars)
+colnames(figure_1b_MP1) = c('sample', 'dna', 'units', 'intensity')
+figure_1b_AB1 = melt(figure_1b[8:13,], id.vars = keep_vars)
+colnames(figure_1b_MP1) = c('sample', 'dna', 'units', 'intensity')
+figure_1b_AM1 = melt(figure_1b[14:18,], id.vars = keep_vars)
+colnames(figure_1b_AM1) = c('sample', 'dna', 'units', 'intensity')
+figure_1b_SS1 = melt(figure_1b[19:24,], id.vars = keep_vars)
+colnames(figure_1b_SS1) = c('sample', 'dna', 'units', 'intensity')
+figure_1b_SS2 = melt(figure_1b[25:30,], id.vars = keep_vars)
+colnames(figure_1b_SS2) = c('sample', 'dna', 'units', 'intensity')
+figure_s2b_D9D9W = melt(figure_s2b_new[1:6,], id.vars = keep_vars)
+colnames(figure_s2b_D9D9W) = c('sample', 'dna', 'units', 'intensity')
+figure_s2b_NEB = melt(figure_s2b_new[7:12,], id.vars = keep_vars)
+colnames(figure_s2b_NEB) = c('sample', 'dna', 'units', 'intensity')
+```
+
+```{r}
+# drm LL.4 analysis for figure 1b  - MP1
+
+t1 = data.frame(figure_1b_MP1[8:14, 4], figure_1b_MP1[8:14, 2])
+colnames(t1) = c('response', 'dose')
+
+fig1b.MP1.20U = drm(response ~ dose, data = t1, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1b.MP1.20U)
+print(ED(fig1b.MP1.20U, 5))
+```
+
+```{r}
+# drm LL.4 analysis for figure 1b  - AB1
+
+t2 = data.frame(figure_1b_AB1[7:12, 4], figure_1b_AB1[7:12, 2])
+colnames(t2) = c('response', 'dose')
+
+fig1b.AB1.20U = drm(response ~ dose, data = t2, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1b.AB1.20U)
+relative_ab1_m6a_0U50ng = figure_1b_AB1[1,2]/ED(fig1b.AB1.20U, figure_1b_AB1[1,4]*100)[1]
+relative_ab1_m6a_0U5ng = figure_1b_AB1[2,2]/ED(fig1b.AB1.20U, figure_1b_AB1[2,4]*100)[1]
+print(relative_ab1_m6a_0U50ng)
+print(relative_ab1_m6a_0U5ng)
+print(ED(fig1b.AB1.20U, 5))
+```
+
+```{r}
+# drm LL.4 analysis for figure 1b  - AM1
+
+t3 = data.frame(figure_1b_AM1[6:10, 4], figure_1b_AM1[6:10, 2])
+colnames(t3) = c('response', 'dose')
+
+fig1b.AM1.20U = drm(response ~ dose, data = t3, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1b.AM1.20U)
+relative_am1_m6a_0U50ng = figure_1b_AM1[1,2]/ED(fig1b.AM1.20U, figure_1b_AM1[1,4]*100)[1]
+relative_am1_m6a_0U5ng = figure_1b_AM1[2,2]/ED(fig1b.AM1.20U, figure_1b_AM1[2,4]*100)[1]
+print(relative_am1_m6a_0U50ng)
+print(relative_am1_m6a_0U5ng)
+print(ED(fig1b.AM1.20U, 5))
+```
+
+```{r}
+# drm LL.4 analysis for figure 1b - SS1
+
+t4 = data.frame(figure_1b_SS1[7:12, 4], figure_1b_SS1[7:12, 2])
+colnames(t4) = c('response', 'dose')
+
+fig1b.SS1.20U = drm(response ~ dose, data = t4, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1b.SS1.20U)
+relative_ss1_m6a_0U50ng = figure_1b_SS1[1,2]/ED(fig1b.SS1.20U, figure_1b_SS1[1,4]*100)[1]
+relative_ss1_m6a_0U5ng = figure_1b_SS1[2,2]/ED(fig1b.SS1.20U, figure_1b_SS1[2,4]*100)[1]
+relative_ss1_m6a_0U0P5ng = figure_1b_SS1[3,2]/ED(fig1b.SS1.20U, figure_1b_SS1[3,4]*100)[1]
+
+print(relative_ss1_m6a_0U50ng)
+print(relative_ss1_m6a_0U5ng)
+print(relative_ss1_m6a_0U0P5ng)
+print(ED(fig1b.SS1.20U, 5))
+```
+
+```{r}
+# drm LL.4 analysis for figure 1b - SS2
+
+t5 = data.frame(figure_1b_SS2[7:12, 4], figure_1b_SS2[7:12, 2])
+colnames(t5) = c('response', 'dose')
+
+fig1b.SS2.20U = drm(response ~ dose, data = t5, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+print(ED(fig1b.SS2.20U, 50))
+plot(fig1b.SS2.20U)
+relative_ss2_m6a_0U50ng = figure_1b_SS2[1,2]/ED(fig1b.SS2.20U, figure_1b_SS2[1,4]*100)[1]
+relative_ss2_m6a_0U5ng = figure_1b_SS2[2,2]/ED(fig1b.SS2.20U, figure_1b_SS2[2,4]*100)[1]
+relative_ss2_m6a_0U0P5ng = figure_1b_SS2[3,2]/ED(fig1b.SS2.20U, figure_1b_SS2[3,4]*100)[1]
+print(relative_ss2_m6a_0U50ng)
+print(relative_ss2_m6a_0U5ng)
+print(relative_ss2_m6a_0U0P5ng)
+
+# Should we average all non-zero intensity values for the 0U when reporting fold change?
+```
+
+```{r}
+# Organize data for figure 1d
+
+figure_1d_20U = figure_1d[, 1:3]
+colnames(figure_1d_20U) = c('sample', 'dna', 'intensity')
+figure_1d_0P6U = figure_1d[, c(1:2, 4)]
+colnames(figure_1d_0P6U) = c('sample', 'dna', 'intensity')
+figure_1d_0P075U = figure_1d[, c(1:2, 5)]
+colnames(figure_1d_0P075U) = c('sample', 'dna', 'intensity')
+figure_1d_0U = figure_1d[, c(1:2, 6)]
+colnames(figure_1d_0U) = c('sample', 'dna', 'intensity')
+```
+
+```{r}
+# drm LL.4 analysis for figure 1d - 20U
+
+t6 = data.frame(figure_1d_20U['intensity'], figure_1d_20U['dna'])
+colnames(t6) = c('response', 'dose')
+
+fig1d.20U = drm(response ~ dose, data = t6, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1d.20U)
+ED(fig1d.20U, 50)
+```
+
+```{r}
+# drm LL.4 analysis for figure 1d - 0.6U
+
+t7 = data.frame(figure_1d_0P6U['intensity'], figure_1d_0P6U['dna'])
+colnames(t7) = c('response', 'dose')
+
+fig1d.0P6U = drm(response ~ dose, data = t7, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1d.0P6U)
+ED(fig1d.0P6U, 50)
+```
+
+```{r}
+# drm LL.4 analysis for figure 1d - 0.075U
+
+t8 = data.frame(figure_1d_0P075U['intensity'], figure_1d_0P075U['dna'])
+colnames(t8) = c('response', 'dose')
+
+fig1d.0P075U = drm(response ~ dose, data = t8, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig1d.0P075U)
+ED(fig1d.0P075U, 50)
+```
+
+
+```{r}
+# relative m6A analysis for figure 1d
+
+relative_m6a_0P6U = ED(fig1d.0P6U, 50)[1]/ED(fig1d.20U, 50)[1]
+relative_m6a_0P075U = figure_1d_0P075U[1,2]/ED(fig1d.20U, figure_1d_0P075U[1,3]*100)[1]
+relative_m6a_0U = figure_1d_0U[1,2]/ED(fig1d.20U, figure_1d_0U[1,3]*100)[1]
+
+print(relative_m6a_0U)
+print(relative_m6a_0P6U)
+print(relative_m6a_0P075U)
+print(140000/relative_m6a_0P6U)
+print(140000/relative_m6a_0P075U)
+print(140000/relative_m6a_0U)
+ED(fig1d.20U, 50)[1]
+```
+
+```{r}
+# Organize data for figure 2b
+
+A.thaliana = figure_2b[1:5,]
+C.reinhardtii = figure_2b[6:9,]
+D.melanogaster = figure_2b[10:13,]
+S2_0U = figure_2b[14:17,]
+S2_0P025U = figure_2b[18:21,]
+S2_0P05U = figure_2b[22:25,]
+S2_0P1U = figure_2b[26:29,]
+S2_0P2U = figure_2b[30:33,]
+S2_0P4U = figure_2b[34:37,]
+```
+
+```{r}
+# drm LL.4 analysis for figure 2b - S2 Nuclei 0.4U
+
+t9 = data.frame(S2_0P4U['intensity'], S2_0P4U['dna'])
+colnames(t9) = c('response', 'dose')
+
+fig2b.S2.0P4U = drm(response ~ dose, data = t9, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig2b.S2.0P4U)
+ED(fig2b.S2.0P4U, 50)
+```
+
+```{r}
+# drm LL.4 analysis for figure 2b - C. reinhardtii
+
+t10 = data.frame(C.reinhardtii['intensity'], C.reinhardtii['dna'])
+colnames(t10) = c('response', 'dose')
+
+fig2b.C.reinhardtii = drm(response ~ dose, data = t10, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+plot(fig2b.C.reinhardtii)
+ED(fig2b.C.reinhardtii, 50)
+```
+
+```{r}
+# relative m6A analysis for figure 2b
+
+relative_m6a_C.reinhardtii = ED(fig2b.C.reinhardtii, 50)[1]/ED(fig2b.S2.0P4U, 50)[1]
+relative_m6a_D.melanogaster = D.melanogaster[1,2]/ED(fig2b.S2.0P4U, D.melanogaster[1,3]*100)[1]
+relative_m6a_A.thaliana = A.thaliana[1,2]/ED(fig2b.S2.0P4U, A.thaliana[1,3]*100)[1]
+relative_m6a_S2_0U_500 = S2_0U[1,2]/ED(fig2b.S2.0P4U, S2_0U[1,3]*100)[1]
+relative_m6a_S2_0P2U_500 = S2_0P2U[1,2]/ED(fig2b.S2.0P4U, S2_0P2U[1,3]*100)[1]
+relative_m6a_S2_0P2U_50 = S2_0P2U[2,2]/ED(fig2b.S2.0P4U, S2_0P2U[2,3]*100)[1]
+relative_m6a_S2_0P1U_500 = S2_0P1U[1,2]/ED(fig2b.S2.0P4U, S2_0P1U[1,3]*100)[1]
+relative_m6a_S2_0P1U_50 = S2_0P1U[2,2]/ED(fig2b.S2.0P4U, S2_0P1U[2,3]*100)[1]
+relative_m6a_S2_0P05U_500 = S2_0P05U[1,2]/ED(fig2b.S2.0P4U, S2_0P05U[1,3]*100)[1]
+relative_m6a_S2_0P025U_500 = S2_0P025U[1,2]/ED(fig2b.S2.0P4U, S2_0P025U[1,3]*100)[1]
+
+print(relative_m6a_A.thaliana)
+print(relative_m6a_C.reinhardtii)
+print(relative_m6a_D.melanogaster)
+print(relative_m6a_S2_0U_500)
+print(relative_m6a_S2_0P025U_500)
+print(relative_m6a_S2_0P05U_500)
+print(relative_m6a_S2_0P1U_500)
+print(relative_m6a_S2_0P1U_50)
+print(relative_m6a_S2_0P2U_500)
+print(relative_m6a_S2_0P2U_50)
+```
+
+```{r}
+# Organize data for figure S2a
+
+figure_s2a_MP1 = figure_s2a[1:28,]
+figure_s2a_AB1 = figure_s2a[29:56,]
+figure_s2a_AM1 = figure_s2a[57:84,]
+figure_s2a_SS1 = figure_s2a[85:112,]
+figure_s2a_SS2 = figure_s2a[113:140,]
+
+# Organize data for figure s2b
+
+figure_s2b_AM3 = figure_s2b[1:14,]
+figure_s2b_MP2 = figure_s2b[15:28,]
+figure_s2b_SA1 = figure_s2b[29:42,]
+figure_s2b_AM2 = figure_s2b[43:56,]
+figure_s2b_DG1 = figure_s2b[57:70,]
+```
+
+```{r}
+# drm LL.4 analysis for figure s2a - MP1 
+
+t11 = data.frame(figure_s2a_MP1[8:14, 3], figure_s2a_MP1[8:14, 2])
+colnames(t11) = c('response', 'dose')
+
+t12 = data.frame(figure_s2a_MP1[15:21, 3], figure_s2a_MP1[15:21, 2])
+colnames(t12) = c('response', 'dose')
+
+fig.s2a.MP1.20U = drm(response ~ dose, data = t11, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.MP1.2U = drm(response ~ dose, data = t12, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_MP1_m6a_2U = ED(fig.s2a.MP1.2U,50)[1]/ED(fig.s2a.MP1.20U,50)[1]
+relative_MP1_m6a_0P2U_500 = figure_s2a_MP1[22,2]/ED(fig.s2a.MP1.20U, figure_s2a_MP1[22,3]*100)[1]
+relative_MP1_m6a_0P2U_50 = figure_s2a_MP1[23,2]/ED(fig.s2a.MP1.20U, figure_s2a_MP1[23,3]*100)[1]
+
+plot(fig.s2a.MP1.20U)
+plot(fig.s2a.MP1.2U)
+ED(fig.s2a.MP1.20U, figure_s2a_MP1[13,3]*100)[1]
+ED(fig.s2a.MP1.2U, 50)
+print(relative_MP1_m6a_2U)
+print(relative_MP1_m6a_0P2U_500)
+print(relative_MP1_m6a_0P2U_50)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2a - AB1 
+
+t13 = data.frame(figure_s2a_AB1[8:14, 3], figure_s2a_AB1[8:14, 2])
+colnames(t13) = c('response', 'dose')
+
+t14 = data.frame(figure_s2a_AB1[15:21, 3], figure_s2a_AB1[15:21, 2])
+colnames(t14) = c('response', 'dose')
+
+t15 = data.frame(figure_s2a_AB1[22:28, 3], figure_s2a_AB1[22:28, 2])
+colnames(t15) = c('response', 'dose')
+
+fig.s2a.AB1.20U = drm(response ~ dose, data = t13, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.AB1.2U = drm(response ~ dose, data = t14, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.AB1.0P2U = drm(response ~ dose, data = t15, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_AB1_m6a_2U = ED(fig.s2a.AB1.2U,50)[1]/ED(fig.s2a.AB1.20U,50)[1]
+relative_AB1_m6a_0P2U_50 = figure_s2a_AB1[22,2]/ED(fig.s2a.AB1.20U, figure_s2a_AB1[22,3]*100)[1]
+relative_AB1_m6a_0P2U_5 = figure_s2a_AB1[23,2]/ED(fig.s2a.AB1.20U, figure_s2a_AB1[23,3]*100)[1]
+relative_AB1_m6a_0U_50 = figure_s2a_AB1[1,2]/ED(fig.s2a.AB1.20U, figure_s2a_AB1[1,3]*100)[1]
+relative_AB1_m6a_0U_5 = figure_s2a_AB1[2,2]/ED(fig.s2a.AB1.20U, figure_s2a_AB1[2,3]*100)[1]
+
+plot(fig.s2a.AB1.20U)
+plot(fig.s2a.AB1.2U)
+plot(fig.s2a.AB1.0P2U)
+ED(fig.s2a.AB1.20U, 50)
+ED(fig.s2a.AB1.2U, 50)
+print(ED(fig.s2a.AB1.0P2U, 50)[1])
+print(relative_AB1_m6a_2U)
+print(relative_AB1_m6a_0P2U_50)
+print(relative_AB1_m6a_0P2U_5)
+print(relative_AB1_m6a_0U_50)
+print(relative_AB1_m6a_0U_5)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2a - AM1
+
+t16 = data.frame(figure_s2a_AM1[8:14, 3], figure_s2a_AM1[8:14, 2])
+colnames(t16) = c('response', 'dose')
+
+t17 = data.frame(figure_s2a_AM1[15:21, 3], figure_s2a_AM1[15:21, 2])
+colnames(t17) = c('response', 'dose')
+
+t18 = data.frame(figure_s2a_AM1[22:28, 3], figure_s2a_AM1[22:28, 2])
+colnames(t18) = c('response', 'dose')
+
+fig.s2a.AM1.20U = drm(response ~ dose, data = t16, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.AM1.2U = drm(response ~ dose, data = t17, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.AM1.0P2U = drm(response ~ dose, data = t18, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_AM1_m6a_2U = ED(fig.s2a.AM1.2U, 50)/ED(fig.s2a.AM1.20U, 50)[1]
+relative_AM1_m6a_2U_50 = figure_s2a_AM1[15,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[15,3]*100)[1]
+relative_AM1_m6a_2U_5 = figure_s2a_AM1[16,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[16,3]*100)[1]
+relative_AM1_m6a_0P2U_50 = figure_s2a_AM1[22,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[22,3]*100)[1]
+relative_AM1_m6a_0P2U_5 = figure_s2a_AM1[23,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[23,3]*100)[1]
+relative_AM1_m6a_0U_50 = figure_s2a_AM1[1,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[1,3]*100)[1]
+relative_AM1_m6a_0U_5 = figure_s2a_AM1[2,2]/ED(fig.s2a.AM1.20U, figure_s2a_AM1[1,3]*100)[1]
+
+print(ED(fig.s2a.AM1.2U, 50)[1])
+print(relative_AM1_m6a_2U)
+plot(fig.s2a.AM1.20U)
+plot(fig.s2a.AM1.2U)
+plot(fig.s2a.AM1.0P2U)
+print(relative_AM1_m6a_2U_50)
+print(relative_AM1_m6a_2U_5)
+print(relative_AM1_m6a_0P2U_50)
+print(relative_AM1_m6a_0P2U_5)
+print(relative_AM1_m6a_0U_50)
+print(relative_AM1_m6a_0U_5)
+```
+
+```{r}
+#drm LL.4 analysis for figure s2a - SS1
+
+t19 = data.frame(figure_s2a_SS1[8:14, 3], figure_s2a_SS1[8:14, 2])
+colnames(t19) = c('response', 'dose')
+
+t20 = data.frame(figure_s2a_SS1[15:21, 3], figure_s2a_SS1[15:21, 2])
+colnames(t20) = c('response', 'dose')
+
+t21 = data.frame(figure_s2a_SS1[22:28, 3], figure_s2a_SS1[22:28, 2])
+colnames(t21) = c('response', 'dose')
+
+fig.s2a.SS1.20U = drm(response ~ dose, data = t19, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.SS1.2U = drm(response ~ dose, data = t20, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.SS1.0P2U = drm(response ~ dose, data = t21, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_SS1_m6a_2U = ED(fig.s2a.SS1.2U, 50)[1]/ED(fig.s2a.SS1.20U, 50)[1]
+relative_SS1_m6A_0P2U = ED(fig.s2a.SS1.0P2U, 50)[1]/ED(fig.s2a.SS1.20U, 50)[1]
+relative_SS1_m6a_0P2U_50 = figure_s2a_SS1[22,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[22,3]*100)[1]
+relative_SS1_m6a_0P2U_5 = figure_s2a_SS1[23,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[23,3]*100)[1]
+relative_SS1_m6a_0P2U_0P5 = figure_s2a_SS1[24,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[24,3]*100)[1]
+relative_SS1_m6a_0U_50 = figure_s2a_SS1[1,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[1,3]*100)[1]
+relative_ss1_m6a_0U_5 = figure_s2a_SS1[2,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[2,3]*100)[1]
+relative_SS1_m6a_0U_0P5 = figure_s2a_SS1[3,2]/ED(fig.s2a.SS1.20U, figure_s2a_SS1[3,3]*100)[1]
+
+plot(fig.s2a.SS1.20U)
+plot(fig.s2a.SS1.2U)
+plot(fig.s2a.SS1.0P2U)
+print(ED(fig.s2a.SS1.0P2U, 50)[1])
+print(relative_SS1_m6a_2U)
+print(relative_SS1_m6A_0P2U)
+print(relative_SS1_m6a_0P2U_50)
+print(relative_SS1_m6a_0P2U_5)
+print(relative_SS1_m6a_0P2U_0P5)
+print(relative_SS1_m6a_0U_50)
+print(relative_ss1_m6a_0U_5)
+print(relative_SS1_m6a_0U_0P5)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2a - SS2
+
+t22 = data.frame(figure_s2a_SS2[8:14, 3], figure_s2a_SS2[8:14, 2])
+colnames(t22) = c('response', 'dose')
+
+t23 = data.frame(figure_s2a_SS2[15:21, 3], figure_s2a_SS2[15:21, 2])
+colnames(t23) = c('response', 'dose')
+
+t24 = data.frame(figure_s2a_SS2[22:28, 3], figure_s2a_SS2[22:28, 2])
+colnames(t24) = c('response', 'dose')
+
+fig.s2a.SS2.20U = drm(response ~ dose, data = t22, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.SS2.2U = drm(response ~ dose, data = t23, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2a.SS2.0P2U = drm(response ~ dose, data = t24, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_SS2_m6a_2U = ED(fig.s2a.SS2.2U, 50)[1]/ED(fig.s2a.SS2.20U, 50)[1]
+relative_SS2_m6a_0P2U = ED(fig.s2a.SS2.0P2U, 50)[1]/ED(fig.s2a.SS2.20U, 50)[1]
+relative_SS2_m6a_0P2U_50 = figure_s2a_SS2[22,2]/ED(fig.s2a.SS2.20U, figure_s2a_SS2[22,3]*100)[1]
+relative_SS2_m6a_0P2U_5 = figure_s2a_SS2[23,2]/ED(fig.s2a.SS2.20U, figure_s2a_SS2[23,3]*100)[1]
+relative_SS2_m6a_0P2U_0P5 = figure_s2a_SS2[23,2]/ED(fig.s2a.SS2.20U, figure_s2a_SS2[23,3]*100)[1]
+relative_SS2_m6a_0U_50 = figure_s2a_SS2[1,2]/ED(fig.s2a.SS2.20U, figure_s2a_SS2[1,3]*100)[1]
+relative_ss2_m6a_0U_5 = figure_s2a_SS2[2,2]/ED(fig.s2a.SS2.20U, figure_s2a_SS2[2,3]*100)[1]
+
+plot(fig.s2a.SS2.20U)
+plot(fig.s2a.SS2.2U)
+plot(fig.s2a.SS1.0P2U)
+print(ED(fig.s2a.SS2.0P2U, 50)[1])
+print(relative_SS2_m6a_2U)
+print(relative_SS2_m6a_0P2U)
+print(relative_SS2_m6a_0P2U_50)
+print(relative_SS2_m6a_0P2U_5)
+print(relative_SS2_m6a_0U_50)
+print(relative_ss2_m6a_0U_5)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2b - AM3
+
+t25 = data.frame(figure_s2b_AM3[1:7, 3], figure_s2b_AM3[1:7, 2])
+colnames(t25) = c('response', 'dose')
+
+fig.s2b.AM3.treated = drm(response ~ dose, data = t25, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_s2b_m6a_AM3_0U_500 = figure_s2b_AM3[8,2]/ED(fig.s2b.AM3.treated, figure_s2b_AM3[8,3]*100)[1]
+
+plot(fig.s2b.AM3.treated)
+print(ED(fig.s2b.AM3.treated, 5))[1]
+print(relative_s2b_m6a_AM3_0U_500)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2b - MP2
+
+t26 = data.frame(figure_s2b_MP2[1:7, 3], figure_s2b_MP2[1:7, 2])
+colnames(t26) = c('response', 'dose')
+
+fig.s2b.MP2.treated = drm(response ~ dose, data = t26, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_s2b_m6a_MP2_0U_500 = figure_s2b_MP2[8,2]/ED(fig.s2b.MP2.treated, figure_s2b_MP2[8,3]*100)[1]
+
+plot(fig.s2b.MP2.treated)
+print(ED(fig.s2b.MP2.treated, 5)[1])
+print(relative_s2b_m6a_MP2_0U_500)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2b - SA1
+
+t27 = data.frame(figure_s2b_SA1[1:7, 3], figure_s2b_SA1[1:7, 2])
+colnames(t27) = c('response', 'dose')
+
+fig.s2b.SA1.treated = drm(response ~ dose, data = t27, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_s2b_m6a_SA1_0U_500 = figure_s2b_SA1[8,2]/ED(fig.s2b.SA1.treated, figure_s2b_SA1[8,3]*100)[1]
+relative_s2b_m6a_SA1_0U_50 = figure_s2b_SA1[9,2]/ED(fig.s2b.SA1.treated, figure_s2b_SA1[9,3]*100)[1]
+
+plot(fig.s2b.SA1.treated)
+print(ED(fig.s2b.SA1.treated, 5)[1])
+print(relative_s2b_m6a_SA1_0U_500)
+print(relative_s2b_m6a_SA1_0U_50)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2b - AM2
+
+t28 = data.frame(figure_s2b_AM2[1:7, 3], figure_s2b_AM2[1:7, 2])
+colnames(t28) = c('response', 'dose')
+
+fig.s2b.AM2.treated = drm(response ~ dose, data = t28, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_s2b_m6a_AM2_0U_500 = figure_s2b_AM2[8,2]/ED(fig.s2b.AM2.treated, figure_s2b_AM2[8,3]*100)[1]
+relative_s2b_m6a_AM2_0U_50 = figure_s2b_AM2[9,2]/ED(fig.s2b.AM2.treated, figure_s2b_AM2[9,3]*100)[1]
+relative_s2b_m6a_AM2_0U_5 = figure_s2b_AM2[10,2]/ED(fig.s2b.AM2.treated, figure_s2b_AM2[10,3]*100)[1]
+
+plot(fig.s2b.AM2.treated)
+print(ED(fig.s2b.AM2.treated, 5)[1])
+print(relative_s2b_m6a_AM2_0U_500)
+print(relative_s2b_m6a_AM2_0U_50)
+print(relative_s2b_m6a_AM2_0U_5)
+```
+
+```{r}
+# drm LL.4 analysis for figure s2b - DG1
+
+t29 = data.frame(figure_s2b_DG1[1:7, 3], figure_s2b_DG1[1:7, 2])
+colnames(t29) = c('response', 'dose')
+
+fig.s2b.DG1.treated = drm(response ~ dose, data = t29, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+relative_s2b_m6a_DG1_0U_500 = figure_s2b_DG1[8,2]/ED(fig.s2b.DG1.treated, figure_s2b_DG1[8,3]*100)[1]
+relative_s2b_m6a_DG1_0U_50 = figure_s2b_DG1[9,2]/ED(fig.s2b.DG1.treated, figure_s2b_DG1[9,3]*100)[1]
+relative_s2b_m6a_DG1_0U_5 = figure_s2b_DG1[10,2]/ED(fig.s2b.DG1.treated, figure_s2b_DG1[10,3]*100)[1]
+
+plot(fig.s2b.DG1.treated)
+print(ED(fig.s2b.DG1.treated, 5)[1])
+print(relative_s2b_m6a_DG1_0U_500)
+print(relative_s2b_m6a_DG1_0U_50)
+print(relative_s2b_m6a_DG1_0U_5)
+```
+
+```{r}
+# drm LL.4 analysis for D9D9W
+
+t30 = data.frame(figure_s2b_D9D9W[7:12, 4], figure_s2b_D9D9W[7:12, 2])
+colnames(t30) = c('response', 'dose')
+
+t31 = data.frame(figure_s2b_D9D9W[13:18, 4], figure_s2b_D9D9W[13:18, 2])
+colnames(t31) = c('response', 'dose')
+
+t32 = data.frame(figure_s2b_D9D9W[19:24, 4], figure_s2b_D9D9W[19:24, 2])
+colnames(t32) = c('response', 'dose')
+
+fig.s2b.D9D9w.treated.replicate1 = drm(response ~ dose, data = t30, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2b.D9D9w.treated.replicate2 = drm(response ~ dose, data = t31, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2b.D9D9w.treated.replicate3 = drm(response ~ dose, data = t32, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+print(ED(fig.s2b.D9D9w.treated.replicate3, 5)[1])
+plot(fig.s2b.D9D9w.treated.replicate1)
+plot(fig.s2b.D9D9w.treated.replicate2)
+plot(fig.s2b.D9D9w.treated.replicate3)
+
+# How to handle replicates? Compare ED50's?
+```
+
+```{r}
+# drm LL.4 analysis for NEB
+
+t33 = data.frame(figure_s2b_NEB[7:12, 4], figure_s2b_NEB[7:12, 2])
+colnames(t33) = c('response', 'dose')
+
+t34 = data.frame(figure_s2b_NEB[13:18, 4], figure_s2b_NEB[13:18, 2])
+colnames(t34) = c('response', 'dose')
+
+t35 = data.frame(figure_s2b_NEB[19:24, 4], figure_s2b_NEB[19:24, 2])
+colnames(t35) = c('response', 'dose')
+
+fig.s2b.NEB.treated.replicate1 = drm(response ~ dose, data = t33, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2b.NEB.treated.replicate2 = drm(response ~ dose, data = t34, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+fig.s2b.NEB.treated.replicate3 = drm(response ~ dose, data = t35, fct = LL.4(fixed = c(NA, 0, 1, NA), names = c('b', 'c', 'd', 'e')))
+
+print(ED(fig.s2b.NEB.treated.replicate3, 5)[1])
+plot(fig.s2b.NEB.treated.replicate1)
+plot(fig.s2b.NEB.treated.replicate2)
+plot(fig.s2b.NEB.treated.replicate3)
+```
+
+```{r}
+# Export plots as PDF
+
+pdf(file = "/Users/benma/OneDrive/Documents/Lab data/Dot-Blot Quant/drm plots/fig.s2a.MP1.2U.pdf", width = 5, height = 4)
+plot1 = plot(fig.s2a.MP1.2U)
+plot1 = recordPlot()
+dev.off()
+```
+
+```{r}
+relative_MP1_0U = figure_1d[1,2]/ED(fig1d.20U, figure_1d[1,6]*100)[1]
+
+print(relative_MP1_0U)
+```
+
+```{r}
+relative_NEB_replicate2_0U = figure_s2b_NEB[1,2]/ED(fig.s2b.NEB.treated.replicate2, 1)[1]
+
+print(relative_NEB_replicate2_0U)
+```
